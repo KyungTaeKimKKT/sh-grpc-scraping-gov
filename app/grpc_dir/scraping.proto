@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package scraping;
+
+service GovNewsScraper {
+  rpc GetNews (ScrapeRequest) returns (ScrapeResponse);
+}
+
+message ScrapeRequest {
+  string url = 1;
+  string gov_name = 2;
+  string category = 3; // 구분
+  string suffix_link = 4;
+}
+
+message NewsItem {
+  string gov_name = 1;
+  string category = 2;
+  string title = 3;
+  string date = 4;
+  string link = 5;
+}
+
+message ScrapeResponse {
+  repeated NewsItem items = 1;
+  repeated string errors = 2;
+}

@@ -1,0 +1,15 @@
+Dockerfile*
+docker-compose.*.yml
+
+.env
+.env*
+.env.*
+venv*/
+.gitignore
+.git/
+
+# Python 캐시
+__pycache__/
+*.pyc
+*.pyo
+*.pyd

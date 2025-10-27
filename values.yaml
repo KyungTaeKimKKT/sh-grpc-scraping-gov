@@ -1,0 +1,120 @@
+### grpc/scraping-gov/values.ymal
+replicaCount: 1
+
+image:
+  repository: shinwoohipo/grpc-scraping-gov
+  tag: "1.0.0"
+  pullPolicy: Always
+
+service:
+  name: scraping-gov
+  type: ClusterIP
+  port: 50160
+  targetPort: 50160  # containerPort 로 mapping됨
+  containerPort: 50160
+
+command:
+  - python
+  - server.py
+
+nfs:
+  server: nas.host.sh
+  path: /volume1/django/192.168.10.249/media
+  size: 200Gi
+
+
+### 별도 env.yaml 로 관리함 : update시, 붙여 넣기
+### deployment.yaml 에서 env 추가함.
+env:
+  - name: IS_DOCKER
+    value: "true"
+  - name: GRPC_PORT
+    value: "50160"
+  - name: MAX_WORKERS
+    value: "10"
+
+  - name: DB_ATTRIBUTES
+    value: "제목,등록일,링크"
+  - name: TH_DB
+    value: '{"제목":"제목","등록일":"등록일","작성일":"등록일","등록일자":"등록일","날짜":"등록일","장학생":"제목금지어","금지어":"제목금지어"}'
+
+
+
+# volumeMounts:
+#   - name: grpc-ping-media
+#     mountPath: /app/media
+
+
+# volumes:
+#   - name: grpc-ping-media
+#     persistentVolumeClaim:
+#       claimName: grpc-ping-media-pvc
+
+
+resources: {}
+
+# nodeSelector:
+#   dns-role: "true"
+
+tolerations: []
+### deployment.yaml 에서 Affinity 추가함.
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+          - key: grpc.cluster
+            operator: In
+            values: ["role"]
+          - key: env
+            operator: In
+            values: ["production"]
+
+
+### ✅ serviceaccount.yaml 용
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+### ✅ ingress-health.yaml 용
+### ingress.yaml 에서도  true면 맨 앞단에 추가함.
+ingressHealth:
+  namePostfix: ingress-health
+  enabled: false
+
+### ✅ ingress.yaml 용
+ingress:
+  enabled: false
+  # className: traefik
+  # annotations:
+  #   traefik.ingress.kubernetes.io/router.entrypoints: grpc
+  #   traefik.ingress.kubernetes.io/protocol: h2c
+  # hosts:
+  #   - host: ping.grpc.sh
+  #     paths:
+  #       - path: /
+  #         pathType: Prefix
+  #         backend:
+  #           service:
+  #             name: ping
+  #             port:
+  #               number: 5555
+  # tls: []
+
+### ✅ ingress-route.yaml 용
+ingressRoute:
+  enabled: true
+  routes:
+    - Host: "scraping-gov.grpc.sh"
+      Port: 50160
+
+### ✅ httproute.yaml 용 ==> 단순한거라, 그냥 ingress 사용함.
+httpRoute:
+  enabled: false
+
+### ✅ hpa.yaml 용
+autoscaling:
+  enabled: false
+

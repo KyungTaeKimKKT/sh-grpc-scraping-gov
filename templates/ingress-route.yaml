@@ -1,0 +1,37 @@
+{{- if .Values.ingressRoute.enabled -}}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "scraping-gov.fullname" $ }}
+  labels:
+    {{- include "scraping-gov.labels" $ | nindent 4 }}
+  {{- with $.Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  entryPoints:
+    - grpc
+  {{- with $.Values.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  {{- if $.Values.ingress.tls }}
+  tls:
+    {{- range $.Values.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  routes:
+    {{- range $idx, $route := $.Values.ingressRoute.routes }}
+    - match: Host("{{ $route.Host }}")
+      kind: Rule
+      services:
+        - name: {{ include "scraping-gov.fullname" $ }}
+          port: {{ $route.Port }}
+          scheme: h2c
+    {{- end }}
+{{- end }}
