@@ -1,6 +1,6 @@
 # ===========================
 # Dockerfile: GRPC Scraping Gov Service (Slim)
-# docker build -t shinwoohipo/grpc-scraping-gov:1.0.0 .
+# docker build -t shinwoohipo/grpc-scraping-gov:1.1.0 .
 # ===========================
 FROM python:3.11-slim
 

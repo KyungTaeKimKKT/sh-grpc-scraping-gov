@@ -27,7 +27,7 @@ class GovNewsScraperServicer(scraping_pb2_grpc.GovNewsScraperServicer):
         config = {
             "url": request.url,
             "gov_name": request.gov_name,
-            "category": request.category,
+            "구분": request.category,
             "suffix_link": request.suffix_link,
         }
 
